@@ -1,0 +1,5 @@
+database:
+  user: youruser
+  password: yourpassword
+  dbname: yourdb
+jwtsecret: your_secret_key
