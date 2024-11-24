@@ -4,38 +4,65 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Rishabhcodes65536/StockinGo/services"
 	"github.com/Rishabhcodes65536/StockinGo/models"
-	utils "github.com/Rishabhcodes65536/StockinGo/utils"
-	"github.com/markcheno/go-quote"
 )
 
-func GetCandleStickChart(w http.ResponseWriter, r *http.Request) {
-	var stockRequest models.StockRequest
-
-	err := json.NewDecoder(r.Body).Decode(&stockRequest)
-	if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-	stock, err1 := quote.NewQuoteFromYahoo(stockRequest.Symbol, "2023-01-01","2024-01-01", quote.Daily, true)
-
-	if err1 != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-	var candlesticks []models.Candlestick 
-	for i,_ := range stock.Date {
-		candlestick := models.Candlestick{
-			Date: stock.Date[i].Format("2006-1-02"),
-			Open: stock.Open[i],
-			High: stock.High[i],
-			Low: stock.Low[i],
-			Close: stock.Close[i],
-			Volume: int(stock.Volume[i]),
+// SearchStock handler
+func SearchStock(stockService services.StockService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		symbol := r.URL.Query().Get("symbol")
+		stock, err := stockService.SearchStock(symbol)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
-		candlesticks=append(candlesticks, candlestick)
-	}
 
-	utils.RespondWithJSON(w, http.StatusOK, candlesticks)
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(stock)
+	}
+}
+
+// GetFavorites handler
+func GetFavorites(stockService services.StockService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		favorites, err := stockService.GetFavorites()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(favorites)
+	}
+}
+
+// AddFavorite handler
+func AddFavorite(stockService services.StockService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		symbol := r.URL.Query().Get("symbol")
+		err := stockService.AddFavorite(symbol)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode("Stock added to favorites")
+	}
+}
+
+// RemoveFavorite handler
+func RemoveFavorite(stockService services.StockService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		symbol := r.URL.Query().Get("symbol")
+		err := stockService.RemoveFavorite(symbol)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode("Stock removed from favorites")
+	}
 }

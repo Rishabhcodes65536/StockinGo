@@ -1,51 +1,52 @@
-package handlers
+// package handlers
 
-import (
-	"encoding/json"
-	"net/http"
-	utils "github.com/Rishabhcodes65536/StockinGo/utils"
-	"github.com/Rishabhcodes65536/StockinGo/database"
-	"github.com/Rishabhcodes65536/StockinGo/models"
-)
+// import (
+// 	"encoding/json"
+// 	"net/http"
 
-func AddFavorite(w http.ResponseWriter,r *http.Request){
-	var favorite models.Favorite
-	err := json.NewDecoder(r.Body).Decode(&favorite)
-	if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+// 	"github.com/Rishabhcodes65536/StockinGo/database"
+// 	"github.com/Rishabhcodes65536/StockinGo/models"
+// 	"github.com/Rishabhcodes65536/StockinGo/pkg/utils"
+// )
 
-	_,err = database.DB.Exec("INSERT INTO favorites (user_id, stock_symbol) VALUES ($1,$2)", favorite.UserID, favorite.StockSymbol)
+// func AddFavorite(w http.ResponseWriter,r *http.Request){
+// 	var favorite models.Favorite
+// 	err := json.NewDecoder(r.Body).Decode(&favorite)
+// 	if err != nil {
+//         http.Error(w, err.Error(), http.StatusBadRequest)
+//         return
+//     }
 
-	 if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+// 	_,err = database.DB.Exec("INSERT INTO favorites (user_id, stock_symbol) VALUES ($1,$2)", favorite.UserID, favorite.StockSymbol)
 
-    utils.RespondWithJSON(w, http.StatusCreated, "Favorite added successfully")
-}
+// 	 if err != nil {
+//         http.Error(w, err.Error(), http.StatusInternalServerError)
+//         return
+//     }
 
-func GetFavorite(w http.ResponseWriter, r *http.Request) {
-    userID := r.Context().Value("userID").(int)
+//     utils.RespondWithJSON(w, http.StatusCreated, "Favorite added successfully")
+// }
 
-    rows, err := database.DB.Query("SELECT stock_symbol FROM favorites WHERE user_id = $1", userID)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    defer rows.Close()
+// func GetFavorite(w http.ResponseWriter, r *http.Request) {
+//     userID := r.Context().Value("userID").(int)
 
-    var favorites []string
-    for rows.Next() {
-        var stockSymbol string
-        err := rows.Scan(&stockSymbol)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-        favorites = append(favorites, stockSymbol)
-    }
+//     rows, err := database.DB.Query("SELECT stock_symbol FROM favorites WHERE user_id = $1", userID)
+//     if err != nil {
+//         http.Error(w, err.Error(), http.StatusInternalServerError)
+//         return
+//     }
+//     defer rows.Close()
 
-    utils.RespondWithJSON(w, http.StatusOK, favorites)
-}
+//     var favorites []string
+//     for rows.Next() {
+//         var stockSymbol string
+//         err := rows.Scan(&stockSymbol)
+//         if err != nil {
+//             http.Error(w, err.Error(), http.StatusInternalServerError)
+//             return
+//         }
+//         favorites = append(favorites, stockSymbol)
+//     }
+
+//     utils.RespondWithJSON(w, http.StatusOK, favorites)
+// }

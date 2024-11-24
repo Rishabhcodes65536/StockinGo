@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/Rishabhcodes65536/StockinGo/utils"
+	"github.com/Rishabhcodes65536/StockinGo/pkg/utils"
 )
 
 func AuthMiddleware(next http.HandlerFunc) 	http.HandlerFunc {

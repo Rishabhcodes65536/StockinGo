@@ -1,14 +1,8 @@
 package models
 
-type Candlestick struct {
-    Date   string  `json:"date"`
-    Open   float64 `json:"open"`
-    High   float64 `json:"high"`
-    Low    float64 `json:"low"`
-    Close  float64 `json:"close"`
-    Volume int     `json:"volume"`
-}
-
-type StockRequest struct {
-    Symbol string `json:"symbol"`
+type Stock struct {
+	Symbol string  `bson:"symbol" json:"symbol"`
+	Name   string  `bson:"name" json:"name"`
+	Price  float64 `bson:"price" json:"price"`
+	UserID string  `bson:"user_id" json:"user_id"`
 }

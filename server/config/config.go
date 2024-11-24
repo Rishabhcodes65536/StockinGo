@@ -1,39 +1,38 @@
 package config
 
-import (
-	"log"
-	"os"
-
-	"github.com/spf13/viper"
-)
+import "os"
 
 type Config struct {
-    Database struct {
-        User     string
-        Password string
-        DBName   string
-    }
-    JWTSecret string
+	MongoURI  string
+	JWTSecret string
+	Port      string
+	Email     EmailConfig
 }
 
-var C Config
+type EmailConfig struct {
+	From     string
+	Password string
+	Host     string
+	Port     string
+}
 
-func LoadConfig() {
-    viper.SetConfigName("config")
-    viper.AddConfigPath(".")
-    viper.AutomaticEnv()
-    viper.SetConfigType("yaml")
+func Load() *Config {
+	return &Config{
+		MongoURI:  os.Getenv("MONGODB_URI"),
+		JWTSecret: os.Getenv("JWT_SECRET"),
+		Port:      getEnvOrDefault("PORT", "8080"),
+		Email: EmailConfig{
+			From:     os.Getenv("EMAIL_FROM"),
+			Password: os.Getenv("EMAIL_PASSWORD"),
+			Host:     os.Getenv("SMTP_HOST"),
+			Port:     os.Getenv("SMTP_PORT"),
+		},
+	}
+}
 
-    if err := viper.ReadInConfig(); err != nil {
-        log.Fatalf("Error reading config file, %s", err)
-    }
-
-    err := viper.Unmarshal(&C)
-    if err != nil {
-        log.Fatalf("Unable to decode into struct, %v", err)
-    }
-	jwtSecret := os.Getenv("JWT_SECRET")
-    if jwtSecret != "" {
-        C.JWTSecret = jwtSecret
-    }
+func getEnvOrDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }
